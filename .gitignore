@@ -45,12 +45,33 @@ app.*.map.json
 /android/app/release
 
 #Git Ignore
+# Flutter & Dart tool files
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
-.pub-cache/
+.packages
 .pub/
+.pub-cache/
+.build/
+.metadata
+
+# Build outputs
 /build/
+*.lock
+
+# IDE files
 .idea/
+.vscode/
 *.iml
+
+# Optional: ignore platforms only if not using them
+# linux/
+# macos/
+# windows/
+# web/
+
+# DO NOT ignore these if you are building for them:
+# android/
+# ios/
+# analysis_options.yaml (keep this tracked for consistent linting)
 
