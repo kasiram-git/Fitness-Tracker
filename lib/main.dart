@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models/workout.dart';
 import 'screens/workout_form.dart';
+import 'screens/step_counter.dart';
+import 'screens/calorie_counter.dart';
 import 'widgets/workout_list.dart';
+import 'widgets/dashboard.dart';
 
 void main() {
   runApp(const FitnessApp());
@@ -18,20 +21,25 @@ class FitnessApp extends StatelessWidget {
       title: 'Fitness Tracker',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
-      home: const WorkoutHomePage(),
+      home: const MainScreen(),
+      routes: {
+        '/step-counter': (context) => const StepCounterScreen(),
+        '/calorie-counter': (context) => const CalorieCounterScreen(),
+      },
     );
   }
 }
 
-class WorkoutHomePage extends StatefulWidget {
-  const WorkoutHomePage({super.key});
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
 
   @override
-  State<WorkoutHomePage> createState() => _WorkoutHomePageState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
-class _WorkoutHomePageState extends State<WorkoutHomePage> {
+class _MainScreenState extends State<MainScreen> {
   List<Workout> _workouts = [];
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -93,21 +101,42 @@ class _WorkoutHomePageState extends State<WorkoutHomePage> {
     );
   }
 
+  void _onTabTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final tabs = [
+      Dashboard(workouts: _workouts),
+      WorkoutList(
+        workouts: _workouts,
+        onEdit: _editWorkout,
+        onDelete: _deleteWorkout,
+      ),
+    ];
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Fitness Tracker")),
-      body: _workouts.isEmpty
-          ? const Center(child: Text("No Workouts Yet!"))
-          : WorkoutList(
-              workouts: _workouts,
-              onEdit: _editWorkout,
-              onDelete: _deleteWorkout,
-            ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _startAddWorkout(context),
-        icon: const Icon(Icons.add),
-        label: const Text("Add Workout"),
+      appBar: AppBar(
+        title: Text(_selectedIndex == 0 ? 'Dashboard' : 'Workout Logs'),
+      ),
+      body: tabs[_selectedIndex],
+      floatingActionButton: _selectedIndex == 1
+          ? FloatingActionButton.extended(
+              onPressed: () => _startAddWorkout(context),
+              icon: const Icon(Icons.add),
+              label: const Text("Add Workout"),
+            )
+          : null,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onTabTapped,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: "Dashboard"),
+          BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: "Workouts"),
+        ],
       ),
     );
   }
